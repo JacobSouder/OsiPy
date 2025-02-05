@@ -1,11 +1,11 @@
 import webbrowser #Used to open webpages in the default browser
-from termcolor import colored #Just so I can beautify everything :)  
+from termcolor import colored 
 import vt #VirusTotal API 3
 import time
 import requests #Used for URL validation in scan_file function
 
-#VirusTotal setup and API Key - Remove API Kep before pushing 
-client = vt.Client("<da0dc12172983769f455c07de3bcab170ff429fb08e44f76353fc9f7549ad496>")
+#VirusTotal setup and API Key - Please add your own free VT API key
+client = vt.Client("<INSERT API KEY>")
 print("""
 ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 ░░░░░     ░░░░░░░░░░░░░░░░░░        ░░░░░░░░░░░░
@@ -25,7 +25,6 @@ def validate_phone_number(phone_number):
     return len(phone_number) == 10 and phone_number.isdigit()
 
 def print_menu():
-    # Welcome message, and main menu. Allows user to select a tool. This meny repeats anytime a tool is completed.
     print(colored("Welcome to OsiPy!", "cyan"))
     print(colored("This is a collection of OSINT tools.", "cyan"))
     print(colored("It aims to save you time by checking multiple databases.", "cyan"))
@@ -36,7 +35,6 @@ def print_menu():
     print("[3] " + colored("(Placeholder - Full Name and Location Search)", "grey"))
     print("[4] " + colored("Link and File Scanner", 'light_red'))
 
-# Get user choice asks the user to select a choice from the main menu printed in print_menu.
 def get_user_choice(options):
     
     while True:
@@ -48,11 +46,7 @@ def get_user_choice(options):
                 print(colored(f"Invalid choice. Please choose from {options}.", "red"))
         except ValueError:
             print(colored("Invalid input. Please enter a number.", "red"))
-'''
-Gets phone number from user when option 1 is selected. Validates phone number to make sure it is 10
-digits, only contains numbers, and has no special characters. Returns phone number is valid - which
-is checked in the validate_phone_number function. 
-'''
+
 def get_phone_number():
     
     while True:
@@ -66,16 +60,9 @@ def get_phone_number():
             
 
 
-'''
-Opens the specified websites for the given phone number. The phone number is split into three parts
-and is used to concatenate the URL for each website - each website has a different URL structure that
-is changed based on the position of the first, middle, and last parts of the phone number. All websites
-are automatically opened in new tabs if running locally. Does not work on IDEs like replit. 
-'''
+
 def open_phone_search_tabs(phone_number):
-    """
-    Opens the specified websites for the given phone number.
-    """
+   
     first = phone_number[0:3]
     middle = phone_number[3:6]
     last = phone_number[6:10]
@@ -103,11 +90,6 @@ def open_phone_search_tabs(phone_number):
         webbrowser.open(website)
 
 
-'''
-Prompts user, with special instructions, to enter domain, provider, and local part of the email address. Email
-websites are then concatenated with the user input and opened in new tabs just like the phone number search. 
-There is no email verification, so it will open tabs regardless of the input. 
-'''
 def get_email_address():
 
     while True: 
@@ -139,67 +121,53 @@ def scan_file():
     vtscan_choice = int(input("[1] Local File Scan\n[2] URL Scan\n[3] Return to the main menu\n\nEnter your selection: "))
     if vtscan_choice == 1: 
         try:
-            # Ask the user for a file path
             vt_file_path = input("Enter the file path (No quotes): ")
 
-            # Create a VirusTotal client
-            with vt.Client('da0dc12172983769f455c07de3bcab170ff429fb08e44f76353fc9f7549ad496') as client:
+            with vt.Client('API KEY') as client:
                 print("Scanning File... (This could take a while)")
-                # Scan the file
                 with open(vt_file_path, 'rb') as f:
                     analysis = client.scan_file(f, wait_for_completion=True)
                 print("File scan completed.")
 
-                # Get the scan result
                 results = analysis.results
 
-                # Check if results is not None
                 if results is not None:
-                    # Print the results
                     print(results)
                 else:
                     print("No results found.")
 
-            # Return the scan result
             return results
         except Exception as e:
             print(f"An error occurred: {e}")
         
     elif vtscan_choice == 2:
         try:
-            # Ask the user for a URL
             vt_url = input("Enter a URL: ")
 
             if not is_valid_url(vt_url):
                 print("Invalid URL. Please try again.")
                 return
 
-            # Create a VirusTotal client
-            with vt.Client('da0dc12172983769f455c07de3bcab170ff429fb08e44f76353fc9f7549ad496') as client:
+            with vt.Client('API KEY') as client:
                 print("Scanning URL... (This could take a while)")
                 # Scan the URL
                 analysis = client.scan_url(vt_url)
 
-                # Wait for the analysis to complete
                 while True:
                     analysis = client.get_object(analysis.id)
                     if analysis.status == "completed":
                         break
-                    time.sleep(5)  # Wait for 5 seconds
+                    time.sleep(5) 
 
                 print("URL scan completed.")
 
-                # Get the scan result
                 results = analysis.last_analysis_stats
 
-                # Check if results is not None
                 if results is not None:
-                    # Print the results
                     print(results)
                 else:
                     print("No results found.")
 
-            # Return the scan result
             return results
         except Exception as e:
             print(f"An error occurred: {e}")
@@ -216,8 +184,6 @@ def print_scan_results(results):
         print(f"Result: {data['result']}")
         print("------------------------")
 
-# Call the function with your results
-#print_scan_results(results)
 
 def main():
     
